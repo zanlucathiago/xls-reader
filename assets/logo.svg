@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="xls-reader logo">
+  <title>xls-reader</title>
+  <defs>
+    <clipPath id="sheet">
+      <rect x="20" y="14" width="88" height="100" rx="14" />
+    </clipPath>
+  </defs>
+  <!-- Spreadsheet body, clipped so the header band gets rounded top corners for free. -->
+  <g clip-path="url(#sheet)">
+    <rect x="20" y="14" width="88" height="100" fill="#0b1120" />
+    <rect x="20" y="14" width="88" height="24" fill="#10b981" />
+    <g stroke="#243244" stroke-width="2.5">
+      <line x1="49" y1="38" x2="49" y2="114" />
+      <line x1="79" y1="38" x2="79" y2="114" />
+      <line x1="20" y1="63" x2="108" y2="63" />
+      <line x1="20" y1="88" x2="108" y2="88" />
+    </g>
+    <!-- Highlighted cell — the "value we read out". -->
+    <rect x="20" y="63" width="29" height="25" fill="#10b981" opacity="0.22" />
+  </g>
+  <rect x="20" y="14" width="88" height="100" rx="14" fill="none" stroke="#10b981" stroke-width="3.5" />
+</svg>
