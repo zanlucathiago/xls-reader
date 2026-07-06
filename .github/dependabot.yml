@@ -1,7 +1,9 @@
 version: 2
 updates:
-  # Dev dependencies (the package ships zero runtime deps). Group non-major
-  # bumps into one weekly PR to keep the noise down.
+  # The package ships zero runtime deps, so everything here is a dev dependency.
+  # Group them into a single weekly PR (all update types) — this keeps related
+  # tools that must move together in lockstep (e.g. vitest + @vitest/coverage-v8,
+  # which pin the same version) in one reviewable change instead of many.
   - package-ecosystem: npm
     directory: "/"
     schedule:
@@ -9,12 +11,17 @@ updates:
     open-pull-requests-limit: 5
     groups:
       dev-dependencies:
-        update-types:
-          - minor
-          - patch
+        patterns:
+          - "*"
 
-  # Keep the GitHub Actions in the workflows current.
+  # Keep the GitHub Actions current. Group everything (including majors) so a
+  # runner/Node bump lands as a single reviewable PR.
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"
