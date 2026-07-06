@@ -38,13 +38,18 @@
   "homepage": "https://github.com/zanlucathiago/xls-reader#readme",
   "type": "module",
   "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     }
   },
   "files": [
@@ -59,7 +64,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
@@ -79,7 +84,7 @@
     "@vitest/coverage-v8": "^4.1.9",
     "eslint": "^10.6.0",
     "prettier": "^3.4.2",
-    "tsup": "^8.3.5",
+    "tsdown": "0.22.3",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.18.1",
     "vite": "^8.0.16",
