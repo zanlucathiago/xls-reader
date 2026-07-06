@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest a BIFF8 record, encoding, or capability to support.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        `xls-reader` is intentionally small: it reads **values** out of BIFF8
+        `.xls` files. Writing, styling, charts, and `.xlsx` are out of scope —
+        see the README. Feature requests that expand value-reading coverage are
+        very welcome.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's the problem?
+      description: What can't you do today? What file or use case is blocked?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should xls-reader do? Reference the BIFF record/encoding if you know it.
+    validations:
+      required: false
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This is about reading values from `.xls` (not writing, styling, or `.xlsx`).
+          required: true
