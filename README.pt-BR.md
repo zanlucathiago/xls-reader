@@ -32,10 +32,12 @@ npm install xls-reader
 
 - [Por que isso existe](#por-que-isso-existe)
 - [Uso](#uso)
+- [Converter um .xls para JSON](#converter-um-xls-para-json)
 - [API](#api)
 - [Comparação](#comparação)
 - [Suportado](#suportado)
 - [Limitações](#limitações)
+- [FAQ](#faq)
 - [Contribuindo](#contribuindo)
 
 ## Por que isso existe
@@ -87,6 +89,23 @@ input.addEventListener("change", async () => {
   const workbook = readXls(await file.arrayBuffer());
   console.table(workbook.sheets[0]?.rows);
 });
+```
+
+## Converter um .xls para JSON
+
+Use a primeira linha como chaves para transformar uma planilha em um array de
+objetos JSON:
+
+```ts
+import { readFirstSheet } from "xls-reader";
+
+const sheet = readFirstSheet(bytes);
+const [header = [], ...body] = sheet?.rows ?? [];
+
+const json = body.map((row) =>
+  Object.fromEntries(header.map((key, i) => [String(key), row[i] ?? null])),
+);
+// [{ Emitente: "BANCO X S/A", Taxa: 1.1, Data: 2024-04-02T00:00:00.000Z }, ...]
 ```
 
 Tratando uma entrada que não é `.xls`:
@@ -180,6 +199,43 @@ valores de um `.xls` legado.
 - Datas anteriores a 1900-03-01 no sistema 1900 ficam com um dia de diferença
   (o bug histórico de ano bissexto do Excel); dados do mundo real não são
   afetados.
+
+## FAQ
+
+### Como leio um arquivo `.xls` no Node.js?
+
+Instale o `xls-reader`, leia o arquivo em bytes e chame `readXls` — sem outra
+configuração, sem módulos nativos:
+
+```ts
+import { readFile } from "node:fs/promises";
+import { readXls } from "xls-reader";
+
+const workbook = readXls(await readFile("relatorio.xls"));
+```
+
+### É uma alternativa ao SheetJS (`xlsx`)?
+
+Para **ler `.xls` legado**, sim. O SheetJS não publica mais no npm, então o
+`xls-reader` é uma opção pequena, publicada no npm e sem dependências quando você
+só precisa dos valores das células. Ele não escreve arquivos nem lê `.xlsx` —
+para isso, use SheetJS ou ExcelJS.
+
+### Consegue ler arquivos `.xlsx`?
+
+Não. `.xlsx` é o formato mais novo OOXML (XML zipado) — um container totalmente
+diferente. O `xls-reader` lida apenas com o `.xls` binário BIFF8, mais antigo.
+Use o [ExcelJS](https://github.com/exceljs/exceljs) para `.xlsx`.
+
+### Como converto um `.xls` para JSON?
+
+Veja [Converter um .xls para JSON](#converter-um-xls-para-json) acima — mapeie
+cada linha de dados na linha de cabeçalho com `Object.fromEntries`.
+
+### Funciona no navegador?
+
+Sim. Ele só usa `Uint8Array` / `DataView`, então passe um `ArrayBuffer` (ex.: de
+um `<input>` de arquivo ou `fetch`) direto para o `readXls`.
 
 ## Contribuindo
 
