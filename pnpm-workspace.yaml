@@ -1,6 +1,6 @@
-# esbuild ships a prebuilt binary; allow its install script so pnpm doesn't flag
-# an "ignored build". verifyDepsBeforeRun=false skips pnpm's pre-script install
-# check (CI installs explicitly; locally the binaries are already present).
-onlyBuiltDependencies:
-  - esbuild
+# esbuild's postinstall links its prebuilt platform binary; approve it so pnpm
+# runs the build instead of erroring on an "ignored build" in CI (non-TTY).
+allowBuilds:
+  esbuild: true
+# Skip pnpm's pre-script "are deps in sync" check (CI installs explicitly).
 verifyDepsBeforeRun: false
