@@ -1,8 +1,7 @@
-<h1 align="center">xls-reader</h1>
-
 <p align="center">
-  Zero-dependency reader for <strong>legacy <code>.xls</code></strong> files (BIFF8 — Excel 97–2003).<br />
-  Returns each worksheet as a grid of typed cells: strings, numbers, booleans, and dates.
+  <a href="https://www.npmjs.com/package/xls-reader">
+    <img src="https://raw.githubusercontent.com/zanlucathiago/xls-reader/main/assets/banner.png" alt="xls-reader — zero-dependency reader for legacy .xls (BIFF8 / Excel 97–2003)" width="820" />
+  </a>
 </p>
 
 <p align="center">

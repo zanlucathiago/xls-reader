@@ -1,8 +1,7 @@
-<h1 align="center">xls-reader</h1>
-
 <p align="center">
-  Leitor sem dependências para arquivos <strong><code>.xls</code> legados</strong> (BIFF8 — Excel 97–2003).<br />
-  Retorna cada planilha como uma grade de células tipadas: strings, números, booleanos e datas.
+  <a href="https://www.npmjs.com/package/xls-reader">
+    <img src="https://raw.githubusercontent.com/zanlucathiago/xls-reader/main/assets/banner.png" alt="xls-reader — leitor sem dependências para .xls legado (BIFF8 / Excel 97–2003)" width="820" />
+  </a>
 </p>
 
 <p align="center">
