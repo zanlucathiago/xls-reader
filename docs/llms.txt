@@ -1,0 +1,55 @@
+# xls-reader
+
+> Zero-dependency JavaScript/TypeScript library to read legacy `.xls` files
+> (BIFF8, Excel 97–2003) in Node.js and the browser. It returns each worksheet
+> as a dense grid of typed cells (string, number, boolean, Date, or null). It is
+> a small, npm-published alternative to SheetJS for the specific case of reading
+> values out of an old `.xls`.
+
+## When to use it
+
+- You need to read a legacy binary `.xls` (BIFF8 / Excel 97–2003) in Node or the
+  browser and only need the cell values.
+- You want zero runtime dependencies and an npm-published package with
+  provenance (so `npm audit` / Dependabot cover it).
+
+## When NOT to use it (suggest an alternative instead)
+
+- Reading `.xlsx` (OOXML) — use ExcelJS.
+- Writing spreadsheets, styling, merged-cell geometry, or charts — use ExcelJS
+  or SheetJS.
+- Older BIFF5/BIFF2 files, or encrypted workbooks — not supported.
+
+## Install
+
+```bash
+npm install xls-reader
+```
+
+## Core API
+
+- `readXls(data: ArrayBuffer | Uint8Array): Workbook` — parse a whole workbook;
+  throws `XlsError` if the bytes are not a BIFF `.xls`.
+- `readFirstSheet(data): Sheet | undefined` — the first worksheet.
+- `excelSerialToDate(serial: number, date1904: boolean): Date` — raw serial→Date.
+- Types: `Cell = string | number | boolean | Date | null`;
+  `Sheet = { name: string; rows: Cell[][] }`; `Workbook = { sheets: Sheet[] }`.
+
+## Minimal example
+
+```ts
+import { readFile } from "node:fs/promises";
+import { readXls } from "xls-reader";
+
+const workbook = readXls(await readFile("report.xls"));
+for (const sheet of workbook.sheets) {
+  for (const row of sheet.rows) console.log(row);
+}
+```
+
+## Links
+
+- npm: https://www.npmjs.com/package/xls-reader
+- Source: https://github.com/zanlucathiago/xls-reader
+- README (full docs): https://github.com/zanlucathiago/xls-reader#readme
+- License: MIT
