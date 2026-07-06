@@ -1,0 +1,51 @@
+name: Release
+
+# Changesets flow: every push to main either opens/updates a "Version Packages"
+# PR (accumulating pending changesets) or, once that PR is merged, publishes the
+# new version to npm.
+#
+# Auth is npm Trusted Publishing (OIDC) — there is NO npm token. It requires:
+#   1. A trusted publisher configured on npmjs.com for this package pointing at
+#      repo zanlucathiago/xls-reader and workflow release.yml.
+#   2. "Allow GitHub Actions to create and approve pull requests" enabled in
+#      Settings → Actions (so the "Version Packages" PR can be opened).
+# Provenance is generated automatically by trusted publishing.
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # push the version PR and tags
+      pull-requests: write # open the release PR
+      id-token: write # OIDC for npm Trusted Publishing + provenance
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      # Trusted Publishing needs npm >= 11.5.1; Node 22 ships npm 10.x.
+      - run: npm install -g npm@latest
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm build
+      - name: Create release PR or publish to npm
+        uses: changesets/action@v1
+        with:
+          version: pnpm run version-packages
+          publish: pnpm run release
+          commit: "chore: release"
+          title: "chore: release"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

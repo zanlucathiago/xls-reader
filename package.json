@@ -11,7 +11,14 @@
     "cfb",
     "legacy-excel",
     "parser",
-    "xlrd"
+    "xls-parser",
+    "read-xls",
+    "sheetjs-alternative",
+    "xlrd",
+    "zero-dependency",
+    "typescript",
+    "browser",
+    "node"
   ],
   "license": "MIT",
   "author": "Thiago Zanluca",
@@ -37,6 +44,7 @@
   "files": [
     "dist",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "sideEffects": false,
@@ -47,14 +55,21 @@
     "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.7.0",
+    "@changesets/cli": "^2.31.0",
     "@eslint/js": "^9.17.0",
     "@types/node": "^20.17.0",
+    "@vitest/coverage-v8": "^2.1.9",
     "eslint": "^9.17.0",
     "prettier": "^3.4.2",
     "tsup": "^8.3.5",

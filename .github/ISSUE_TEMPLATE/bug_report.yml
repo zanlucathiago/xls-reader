@@ -1,0 +1,52 @@
+name: Bug report
+description: A file that doesn't read correctly, a crash, or wrong cell values.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report! The most useful bug reports come with a **sample
+        file that reproduces the problem**. Please attach the smallest `.xls`
+        that shows it — ideally synthetic, not a real proprietary workbook.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you get instead?
+      placeholder: |
+        `readXls(bytes)` threw / returned the wrong value for cell B2 ...
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: A minimal code snippet. Attach the sample `.xls` if you can.
+      render: ts
+      placeholder: |
+        import { readXls } from "xls-reader";
+        const wb = readXls(await readFile("sample.xls"));
+        console.log(wb.sheets[0].rows[1]);
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: xls-reader version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: runtime
+    attributes:
+      label: Runtime & OS
+      placeholder: Node 22 on macOS 15 / Chrome 133
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: How was the file created?
+      description: Which app/library wrote the `.xls` (Excel version, xlwt, a bank export, ...)? This is often the key clue.
+    validations:
+      required: false

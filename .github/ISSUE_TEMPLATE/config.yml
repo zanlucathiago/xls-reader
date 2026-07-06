@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question / usage help
+    url: https://github.com/zanlucathiago/xls-reader/discussions
+    about: Ask how to use xls-reader, or discuss ideas before filing an issue.
+  - name: Security vulnerability
+    url: https://github.com/zanlucathiago/xls-reader/security/advisories/new
+    about: Report a security issue privately (please do not open a public issue).

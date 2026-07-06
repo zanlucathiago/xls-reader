@@ -1,12 +1,38 @@
-# xls-reader
+<h1 align="center">xls-reader</h1>
 
-Zero-dependency reader for **legacy `.xls`** files (BIFF8 — Excel 97–2003). It
-returns each worksheet as a grid of typed cells: strings, numbers, booleans, and
-dates. Runs in Node and the browser (it only needs `Uint8Array` / `DataView`).
+<p align="center">
+  Zero-dependency reader for <strong>legacy <code>.xls</code></strong> files (BIFF8 — Excel 97–2003).<br />
+  Returns each worksheet as a grid of typed cells: strings, numbers, booleans, and dates.
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/xls-reader"><img src="https://img.shields.io/npm/v/xls-reader.svg?color=cb3837&logo=npm" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/xls-reader"><img src="https://img.shields.io/npm/dm/xls-reader.svg?color=cb3837&logo=npm" alt="npm downloads" /></a>
+  <a href="https://github.com/zanlucathiago/xls-reader/actions/workflows/ci.yml"><img src="https://github.com/zanlucathiago/xls-reader/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
+  <a href="https://codecov.io/gh/zanlucathiago/xls-reader"><img src="https://codecov.io/gh/zanlucathiago/xls-reader/branch/main/graph/badge.svg" alt="coverage" /></a>
+  <a href="https://bundlephobia.com/package/xls-reader"><img src="https://img.shields.io/bundlephobia/minzip/xls-reader.svg?label=min%2Bgzip" alt="bundle size" /></a>
+  <img src="https://img.shields.io/badge/dependencies-0-brightgreen.svg" alt="zero dependencies" />
+  <a href="./LICENSE"><img src="https://img.shields.io/npm/l/xls-reader.svg?color=blue" alt="MIT license" /></a>
+</p>
+
+Runs in Node and the browser — it only needs `Uint8Array` / `DataView`. It ships
+as **~3.8 KB min+gzip with zero runtime dependencies**, dual ESM/CJS, fully typed,
+and published to npm with [provenance](https://docs.npmjs.com/generating-provenance-statements).
 
 ```bash
 npm install xls-reader
+# or: pnpm add xls-reader / yarn add xls-reader
 ```
+
+## Contents
+
+- [Why this exists](#why-this-exists)
+- [Usage](#usage)
+- [API](#api)
+- [Comparison](#comparison)
+- [Supported](#supported)
+- [Limitations](#limitations)
+- [Contributing](#contributing)
 
 ## Why this exists
 
@@ -45,6 +71,36 @@ import { readFirstSheet } from "xls-reader";
 const sheet = readFirstSheet(bytes);
 ```
 
+In the browser (e.g. from a file `<input>`):
+
+```ts
+import { readXls } from "xls-reader";
+
+input.addEventListener("change", async () => {
+  const file = input.files?.[0];
+  if (!file) return;
+  const workbook = readXls(await file.arrayBuffer());
+  console.table(workbook.sheets[0]?.rows);
+});
+```
+
+Handling non-`.xls` input:
+
+```ts
+import { readXls, XlsError } from "xls-reader";
+
+try {
+  const workbook = readXls(bytes);
+} catch (err) {
+  if (err instanceof XlsError) {
+    // Not a BIFF .xls — e.g. it's really an .xlsx, CSV, or HTML mislabeled as .xls
+    console.error(err.message);
+  } else {
+    throw err;
+  }
+}
+```
+
 ## API
 
 ### `readXls(data: ArrayBuffer | Uint8Array): Workbook`
@@ -55,14 +111,20 @@ Parses a whole workbook. Throws `XlsError` if the bytes aren't a BIFF `.xls`.
 
 The first worksheet, for the single-sheet case.
 
+### `excelSerialToDate(serial: number, date1904: boolean): Date`
+
+The raw serial-number → `Date` (UTC) conversion, if you need it directly.
+
 ### Types
 
 ```ts
 type Cell = string | number | boolean | Date | null;
+
 interface Sheet {
   name: string;
   rows: Cell[][]; // dense, null-padded to the last used column
 }
+
 interface Workbook {
   sheets: Sheet[];
 }
@@ -73,6 +135,22 @@ interface Workbook {
   returned as a `Date` (UTC). Use `excelSerialToDate` if you need the raw
   conversion.
 - **Blank / error** cells are `null`.
+
+## Comparison
+
+|                                  | **xls-reader** | SheetJS (`xlsx`)      | ExcelJS |
+| -------------------------------- | -------------- | --------------------- | ------- |
+| Reads legacy `.xls` (BIFF8)      | ✅             | ✅                    | ❌      |
+| Reads `.xlsx` (OOXML)            | ❌             | ✅                    | ✅      |
+| Latest fixes on the npm registry | ✅             | ⚠️ frozen at `0.18.5` | ✅      |
+| Runtime dependencies             | **0**          | several               | several |
+| Install size                     | ~4 KB min+gzip | large                 | large   |
+| npm provenance attestation       | ✅             | ❌                    | ❌      |
+| Writes files / styling / charts  | ❌             | ✅                    | ✅      |
+
+If you need to **write** spreadsheets, style cells, or read `.xlsx`, reach for
+ExcelJS or SheetJS. `xls-reader` deliberately does one thing: get the values out
+of a legacy `.xls`.
 
 ## Supported
 
@@ -90,6 +168,13 @@ interface Workbook {
 - Encrypted workbooks are not supported.
 - Dates before 1900-03-01 in the 1900 system are off by one day (Excel's
   historical leap-year bug); real-world data is unaffected.
+
+## Contributing
+
+Bug reports, sample files, and PRs are very welcome — see
+[CONTRIBUTING.md](./CONTRIBUTING.md). Please also read the
+[Code of Conduct](./CODE_OF_CONDUCT.md). To report a security issue, see the
+[Security Policy](./SECURITY.md).
 
 ## License
 

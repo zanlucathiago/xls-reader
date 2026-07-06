@@ -1,0 +1,20 @@
+version: 2
+updates:
+  # Dev dependencies (the package ships zero runtime deps). Group non-major
+  # bumps into one weekly PR to keep the noise down.
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      dev-dependencies:
+        update-types:
+          - minor
+          - patch
+
+  # Keep the GitHub Actions in the workflows current.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
