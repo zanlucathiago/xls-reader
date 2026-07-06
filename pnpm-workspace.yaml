@@ -1,0 +1,6 @@
+# esbuild ships a prebuilt binary; allow its install script so pnpm doesn't flag
+# an "ignored build". verifyDepsBeforeRun=false skips pnpm's pre-script install
+# check (CI installs explicitly; locally the binaries are already present).
+onlyBuiltDependencies:
+  - esbuild
+verifyDepsBeforeRun: false

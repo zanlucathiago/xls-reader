@@ -1,0 +1,7 @@
+node_modules
+dist
+coverage
+*.log
+.DS_Store
+# Local, non-committed real-world .xls samples used for manual checks
+scratch/
