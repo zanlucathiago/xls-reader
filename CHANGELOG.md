@@ -1,5 +1,13 @@
 # xls-reader
 
+## 0.1.2
+
+### Patch Changes
+
+- [#22](https://github.com/zanlucathiago/xls-reader/pull/22) [`a00d7e1`](https://github.com/zanlucathiago/xls-reader/commit/a00d7e16c33ab57909046f571dd40e989d632fc1) Thanks [@zanlucathiago](https://github.com/zanlucathiago)! - Docs & discoverability: sharpen the npm description and keywords, and add an
+  "Convert an .xls to JSON" example plus an FAQ to the README (English and
+  pt-BR). No API changes.
+
 ## 0.1.1
 
 ### Patch Changes
