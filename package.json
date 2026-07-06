@@ -1,6 +1,6 @@
 {
   "name": "xls-reader",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Zero-dependency reader for legacy .xls (BIFF8 / Excel 97-2003) files. Returns each sheet as a grid of typed cells.",
   "keywords": [
     "xls",
