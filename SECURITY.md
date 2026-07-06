@@ -24,7 +24,7 @@ Please report security issues **privately** — do not open a public issue.
 
 - Preferred: use GitHub's [private vulnerability reporting][ghsa] on this
   repository (Security → Report a vulnerability).
-- Or email **thiago.mzanluca@gmail.com** with details and, if possible, a
+- Or email **zanlucathiago@gmail.com** with details and, if possible, a
   minimal reproduction.
 
 Because this library parses **untrusted binary input**, the reports we care most
