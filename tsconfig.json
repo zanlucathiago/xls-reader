@@ -2,9 +2,9 @@
   "compilerOptions": {
     "target": "ES2021",
     "module": "ESNext",
-    // tsup's DTS build injects a default `baseUrl`, which TS 6 deprecates (removed
-    // in TS 7). This is the documented escape hatch until tsup stops setting it.
-    // Our own config uses no baseUrl. See https://aka.ms/ts6.
+    // Workaround: tsup injects a default `baseUrl` into its DTS build, which TS 6
+    // deprecates and TS 7 removes. Our own config sets no baseUrl. Drop this once
+    // tsup ships the fix — egoist/tsup#1388 (fix in egoist/tsup#1390). https://aka.ms/ts6
     "ignoreDeprecations": "6.0",
     "moduleResolution": "bundler",
     "lib": ["ES2021"],
