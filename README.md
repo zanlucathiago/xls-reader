@@ -15,6 +15,10 @@
   <a href="./LICENSE"><img src="https://img.shields.io/npm/l/xls-reader.svg?color=blue" alt="MIT license" /></a>
 </p>
 
+<p align="center">
+  <strong>English</strong> · <a href="./README.pt-BR.md">Português (BR)</a>
+</p>
+
 Runs in Node and the browser — it only needs `Uint8Array` / `DataView`. It ships
 as **~3.8 KB min+gzip with zero runtime dependencies**, dual ESM/CJS, fully typed,
 and published to npm with [provenance](https://docs.npmjs.com/generating-provenance-statements).
