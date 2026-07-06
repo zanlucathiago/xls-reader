@@ -28,9 +28,9 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # github-actions cooldown only supports `default-days` (no per-semver keys).
     cooldown:
       default-days: 7
-      semver-major-days: 14
     groups:
       github-actions:
         patterns:
