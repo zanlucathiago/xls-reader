@@ -1,5 +1,13 @@
 # xls-reader
 
+## 0.1.1
+
+### Patch Changes
+
+- [#1](https://github.com/zanlucathiago/xls-reader/pull/1) [`7cd6a31`](https://github.com/zanlucathiago/xls-reader/commit/7cd6a3127caa16fe2ecc3428b0b51cd51b5c4d45) Thanks [@zanlucathiago](https://github.com/zanlucathiago)! - Republish with npm provenance attestation and a rewritten README (badges,
+  comparison table vs SheetJS/ExcelJS, browser and error-handling examples). No
+  changes to the parser or public API.
+
 ## 0.1.0
 
 Initial release. A zero-dependency reader for legacy `.xls` (BIFF8 / Excel
