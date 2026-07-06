@@ -9,6 +9,13 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # Let releases age before we adopt them — the same supply-chain posture as
+    # this project's whole reason to exist. Mirrors pnpm's `minimumReleaseAge`
+    # so Dependabot stops proposing hours-old patches (e.g. it won't jump to a
+    # version published today; it waits out the window first).
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
     groups:
       dev-dependencies:
         patterns:
@@ -21,6 +28,9 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
     groups:
       github-actions:
         patterns:
