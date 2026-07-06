@@ -2,10 +2,6 @@
   "compilerOptions": {
     "target": "ES2021",
     "module": "ESNext",
-    // Workaround: tsup injects a default `baseUrl` into its DTS build, which TS 6
-    // deprecates and TS 7 removes. Our own config sets no baseUrl. Drop this once
-    // tsup ships the fix — egoist/tsup#1388 (fix in egoist/tsup#1390). https://aka.ms/ts6
-    "ignoreDeprecations": "6.0",
     "moduleResolution": "bundler",
     "lib": ["ES2021"],
     "types": ["node"],
