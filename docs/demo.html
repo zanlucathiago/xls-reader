@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>xls-reader — live .xls demo (runs in your browser, no upload)</title>
+    <meta
+      name="description"
+      content="Drop a legacy .xls (Excel 97–2003) file and see it decoded to cells — entirely in your browser with xls-reader. The file never leaves your machine."
+    />
+    <link rel="canonical" href="https://zanlucathiago.github.io/xls-reader/demo.html" />
+    <meta name="theme-color" content="#0d1117" />
+    <meta property="og:title" content="xls-reader — live .xls demo (in your browser)" />
+    <meta
+      property="og:description"
+      content="Drop an .xls file and see it parsed in your browser. Zero upload, zero dependencies."
+    />
+    <meta
+      property="og:image"
+      content="https://raw.githubusercontent.com/zanlucathiago/xls-reader/main/assets/social-preview.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --bg: #0d1117;
+        --bg2: #0f172a;
+        --fg: #e5e7eb;
+        --muted: #94a3b8;
+        --accent: #34d399;
+        --border: rgba(148, 163, 184, 0.18);
+        --card: rgba(2, 6, 23, 0.55);
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        color: var(--fg);
+        line-height: 1.6;
+        min-height: 100vh;
+        background:
+          radial-gradient(900px 440px at 50% -10%, rgba(16, 185, 129, 0.14), transparent 62%),
+          linear-gradient(135deg, var(--bg) 0%, var(--bg2) 55%, #111827 100%);
+        background-attachment: fixed;
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 48px 24px 80px;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+      h1 {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 40px;
+        letter-spacing: -1.5px;
+      }
+      h1 .accent {
+        color: var(--accent);
+      }
+      header p {
+        color: var(--muted);
+        margin-top: 8px;
+      }
+      .nav {
+        margin-top: 16px;
+        font-size: 15px;
+      }
+      .nav a {
+        margin: 0 8px;
+      }
+      #drop {
+        border: 2px dashed rgba(52, 211, 153, 0.4);
+        border-radius: 16px;
+        background: var(--card);
+        padding: 48px 24px;
+        text-align: center;
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      #drop.hover {
+        border-color: var(--accent);
+        background: rgba(16, 185, 129, 0.08);
+      }
+      #drop strong {
+        color: var(--fg);
+        font-size: 18px;
+      }
+      #drop .hint {
+        color: var(--muted);
+        font-size: 14px;
+        margin-top: 8px;
+      }
+      #drop .sample {
+        margin-top: 14px;
+        font-size: 14px;
+      }
+      .privacy {
+        margin-top: 14px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .privacy b {
+        color: var(--accent);
+      }
+      #status {
+        margin: 24px 0 8px;
+        min-height: 24px;
+        font-size: 15px;
+      }
+      #status.error {
+        color: #fca5a5;
+      }
+      .sheet {
+        margin-top: 28px;
+      }
+      .sheet h2 {
+        font-size: 18px;
+        margin-bottom: 6px;
+      }
+      .sheet .meta {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 10px;
+      }
+      .table-scroll {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+      }
+      table {
+        border-collapse: collapse;
+        font-size: 13px;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        white-space: nowrap;
+      }
+      th,
+      td {
+        padding: 6px 12px;
+        border-bottom: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        text-align: left;
+      }
+      thead th {
+        position: sticky;
+        top: 0;
+        background: #0b1120;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      tbody th {
+        background: #0b1120;
+        color: var(--muted);
+        font-weight: 500;
+      }
+      td.t-number {
+        color: #93c5fd;
+        text-align: right;
+      }
+      td.t-string {
+        color: #e5e7eb;
+      }
+      td.t-boolean {
+        color: #f0abfc;
+      }
+      td.t-date {
+        color: #fcd34d;
+      }
+      td.t-null {
+        color: #475569;
+      }
+      .code {
+        margin-top: 40px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px 20px;
+        overflow-x: auto;
+        font-size: 13px;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        color: #cbd5e1;
+      }
+      .code .k {
+        color: var(--accent);
+      }
+      footer {
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+        margin-top: 48px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1><span class="accent">xls</span>-reader</h1>
+        <p>Drop a legacy <code>.xls</code> file — it's parsed right here, in your browser.</p>
+        <nav class="nav">
+          <a href="./index.html">Home</a> ·
+          <a href="https://www.npmjs.com/package/xls-reader">npm</a> ·
+          <a href="https://github.com/zanlucathiago/xls-reader">GitHub</a>
+        </nav>
+      </header>
+
+      <div id="drop" tabindex="0" role="button" aria-label="Choose or drop an .xls file">
+        <strong>Drop an .xls here</strong>
+        <div class="hint">or click to choose a file (Excel 97–2003 / BIFF8)</div>
+        <div class="sample">no file handy? <a href="#" id="try-sample">try a sample .xls →</a></div>
+        <input id="file" type="file" accept=".xls,application/vnd.ms-excel" hidden />
+      </div>
+      <p class="privacy">
+        🔒 <b>Nothing is uploaded.</b> The file is read locally with <code>Uint8Array</code>/<code
+          >DataView</code
+        >
+        — it never leaves your browser.
+      </p>
+
+      <div id="status"></div>
+      <div id="output"></div>
+
+      <div class="code">
+        <span class="k">import</span> { readXls } <span class="k">from</span> "xls-reader";<br />
+        <span class="k">const</span> workbook = readXls(<span class="k">await</span>
+        file.arrayBuffer());<br />
+        <span style="color: #64748b">// exactly what this page does — the real npm package</span>
+      </div>
+
+      <footer>
+        Powered by
+        <a href="https://www.npmjs.com/package/xls-reader">xls-reader</a> loaded straight from the
+        npm registry via jsDelivr. MIT © Thiago Zanluca.
+      </footer>
+    </div>
+
+    <script type="module">
+      // Load the REAL published package from the CDN, so this demo proves the
+      // exact npm build runs in the browser (not a special bundle).
+      import {
+        readXls,
+        XlsError,
+      } from "https://cdn.jsdelivr.net/npm/xls-reader@0.1.2/dist/index.js";
+
+      const drop = document.getElementById("drop");
+      const fileInput = document.getElementById("file");
+      const statusEl = document.getElementById("status");
+      const output = document.getElementById("output");
+
+      const MAX_CELLS = 5000; // cap DOM cells per sheet so a huge file stays snappy
+
+      function setStatus(msg, isError = false) {
+        statusEl.textContent = msg;
+        statusEl.className = isError ? "error" : "";
+      }
+
+      function cellClass(value) {
+        if (value === null) return "t-null";
+        if (value instanceof Date) return "t-date";
+        return `t-${typeof value}`;
+      }
+
+      function cellText(value) {
+        if (value === null) return "";
+        if (value instanceof Date)
+          return value.toISOString().replace("T", " ").replace(".000Z", "");
+        return String(value);
+      }
+
+      // Renders one sheet as an HTML table with row numbers and column letters,
+      // truncating very large sheets so the page never locks up.
+      function renderSheet(sheet) {
+        const rows = sheet.rows;
+        const cols = rows.reduce((m, r) => Math.max(m, r.length), 0);
+        const maxRows = Math.max(1, Math.floor(MAX_CELLS / Math.max(1, cols)));
+        const shown = rows.slice(0, maxRows);
+
+        const head = [
+          "<tr><th></th>",
+          ...Array.from({ length: cols }, (_, c) => `<th>${colName(c)}</th>`),
+          "</tr>",
+        ].join("");
+
+        const body = shown
+          .map((row, r) => {
+            const cells = Array.from({ length: cols }, (_, c) => {
+              const v = row[c] ?? null;
+              return `<td class="${cellClass(v)}">${escapeHtml(cellText(v))}</td>`;
+            }).join("");
+            return `<tr><th>${r + 1}</th>${cells}</tr>`;
+          })
+          .join("");
+
+        const truncated =
+          rows.length > shown.length
+            ? `<div class="meta">showing ${shown.length} of ${rows.length} rows</div>`
+            : "";
+
+        return `<div class="sheet">
+          <h2>${escapeHtml(sheet.name)}</h2>
+          <div class="meta">${rows.length} rows × ${cols} cols</div>
+          ${truncated}
+          <div class="table-scroll"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
+        </div>`;
+      }
+
+      // Spreadsheet column label: 0→A, 25→Z, 26→AA …
+      function colName(n) {
+        let s = "";
+        n += 1;
+        while (n > 0) {
+          const r = (n - 1) % 26;
+          s = String.fromCharCode(65 + r) + s;
+          n = Math.floor((n - 1) / 26);
+        }
+        return s;
+      }
+
+      function escapeHtml(s) {
+        return s.replace(
+          /[&<>"]/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+        );
+      }
+
+      async function handleBytes(bytes, label) {
+        output.innerHTML = "";
+        try {
+          const t0 = performance.now();
+          const workbook = readXls(bytes);
+          const ms = (performance.now() - t0).toFixed(1);
+          const totalCells = workbook.sheets.reduce(
+            (n, s) => n + s.rows.reduce((m, r) => m + r.length, 0),
+            0,
+          );
+          setStatus(
+            `✓ Parsed ${label} — ${workbook.sheets.length} sheet(s), ${totalCells.toLocaleString()} cells in ${ms} ms`,
+          );
+          output.innerHTML = workbook.sheets.map(renderSheet).join("");
+        } catch (err) {
+          if (err instanceof XlsError) {
+            setStatus(`Couldn't read that file: ${err.message}`, true);
+          } else {
+            setStatus(`Unexpected error: ${err?.message ?? err}`, true);
+            throw err;
+          }
+        }
+      }
+
+      async function handleFile(file) {
+        if (!file) return;
+        setStatus(`Reading ${file.name}…`);
+        const buffer = await file.arrayBuffer();
+        await handleBytes(new Uint8Array(buffer), file.name);
+      }
+
+      drop.addEventListener("click", () => fileInput.click());
+      drop.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") fileInput.click();
+      });
+      fileInput.addEventListener("change", () => handleFile(fileInput.files?.[0]));
+
+      ["dragenter", "dragover"].forEach((ev) =>
+        drop.addEventListener(ev, (e) => {
+          e.preventDefault();
+          drop.classList.add("hover");
+        }),
+      );
+      ["dragleave", "drop"].forEach((ev) =>
+        drop.addEventListener(ev, (e) => {
+          e.preventDefault();
+          drop.classList.remove("hover");
+        }),
+      );
+      drop.addEventListener("drop", (e) => handleFile(e.dataTransfer?.files?.[0]));
+
+      // A tiny known-good sample so visitors can try it with zero friction.
+      document.getElementById("try-sample").addEventListener("click", async (e) => {
+        e.preventDefault();
+        setStatus("Fetching sample…");
+        try {
+          // Same-origin: sample.xls is shipped alongside this page in docs/.
+          const res = await fetch("./sample.xls");
+          const buf = await res.arrayBuffer();
+          await handleBytes(new Uint8Array(buf), "sample.xls");
+        } catch (err) {
+          setStatus(`Couldn't fetch the sample: ${err?.message ?? err}`, true);
+        }
+      });
+    </script>
+  </body>
+</html>
