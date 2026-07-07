@@ -20,8 +20,8 @@ export interface CfbHeader {
 export function parseCfbHeader(bytes: Uint8Array): CfbHeader {
   assertSignature(bytes);
   const reader = new ByteReader(bytes, 30);
-  const sectorSize = 1 << reader.u16();
-  const miniSectorSize = 1 << reader.u16();
+  const sectorSize = powerOfTwoSize(reader.u16(), "sector", [9, 12]);
+  const miniSectorSize = powerOfTwoSize(reader.u16(), "mini-sector", [6]);
   reader.position = 44;
   reader.u32(); // number of FAT sectors — we derive the FAT from the DIFAT instead
   const firstDirSector = reader.u32();
@@ -41,6 +41,20 @@ export function parseCfbHeader(bytes: Uint8Array): CfbHeader {
     numDifatSectors,
     initialDifat: readInitialDifat(bytes),
   };
+}
+
+// Sector sizes are stored as a power-of-two shift ([MS-CFB] §2.2). Only a fixed
+// set is legal (9→512 or 12→4096 for sectors, 6→64 for mini sectors). Validating
+// here is essential, not cosmetic: an unchecked `1 << shift` can go negative
+// (e.g. `1 << 31`) or huge, turning later sector offsets into out-of-bounds or
+// OOM-sized allocations on a crafted file.
+function powerOfTwoSize(shift: number, kind: string, allowed: readonly number[]): number {
+  if (!allowed.includes(shift)) {
+    throw new XlsError(
+      `Invalid CFB ${kind} shift ${shift}: expected one of [${allowed.join(", ")}]`,
+    );
+  }
+  return 1 << shift;
 }
 
 // The header's tail (offset 76..512) holds the first 109 DIFAT entries — the

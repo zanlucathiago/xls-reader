@@ -1,4 +1,5 @@
 import { ByteReader } from "../byte-reader";
+import { XlsError } from "../errors";
 import type { Cell, Sheet } from "../types";
 import {
   decodeBlank,
@@ -94,12 +95,26 @@ function appendFormula(
   return { row: result.row, col: result.col };
 }
 
+// BIFF8 grid limits ([MS-XLS]): a worksheet is at most 65536 rows × 256 columns.
+// A cell position outside these means the record is corrupt — and an unchecked
+// column especially is dangerous, since the dense grid below is sized to the max
+// column, so a bogus col (e.g. 6400) would allocate a ~hundreds-of-MB grid from a
+// tiny file. Reject rather than crash.
+const MAX_ROW = 65535;
+const MAX_COL = 255;
+
 // Packs sparse positioned cells into a dense grid, padding gaps with null so
 // every row has the same length (the sheet's last used column + 1).
 function toGrid(cells: readonly PositionedCell[]): Cell[][] {
   if (cells.length === 0) return [];
   const maxRow = cells.reduce((max, cell) => Math.max(max, cell.row), 0);
   const maxCol = cells.reduce((max, cell) => Math.max(max, cell.col), 0);
+  if (maxRow > MAX_ROW || maxCol > MAX_COL) {
+    throw new XlsError(
+      `Corrupt sheet: cell position (row ${maxRow}, col ${maxCol}) exceeds the BIFF8 ` +
+        `limit of ${MAX_ROW + 1} rows × ${MAX_COL + 1} columns`,
+    );
+  }
   const rows: Cell[][] = Array.from({ length: maxRow + 1 }, () =>
     new Array<Cell>(maxCol + 1).fill(null),
   );

@@ -25,3 +25,14 @@ s2.write(0, 0, "Produto")
 s2.write(1, 0, "CDB DI"); s2.write(1, 1, 267.85)
 wb.save("test/fixtures/sample.xls")
 ```
+
+## `corrupt-huge-column.xls`
+
+A **hostile** fixture: `sample.xls` with a handful of bytes flipped (found by the
+fuzz harness in `test/robustness.test.ts`). The mutation lands in a cell record's
+column field, decoding to column 6400 — far past the BIFF8 maximum of 255. The
+dense grid is sized to the largest column seen, so before the fix this allocated
+a hundreds-of-megabytes grid from a 5.6 KB file and OOM-crashed the process.
+
+It is committed as a deterministic regression for that bug (`test/oom-repro.test.ts`,
+vector 3): reading it must throw `XlsError`, not crash. Do not "repair" it.

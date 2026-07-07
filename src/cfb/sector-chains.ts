@@ -27,12 +27,21 @@ export function buildFat(bytes: Uint8Array, header: CfbHeader): number[] {
 }
 
 // The ordered list of sector ids that hold the FAT: the header's first 109, then
-// any extra ones chained through DIFAT sectors.
+// any extra ones chained through DIFAT sectors. The DIFAT chain is walked with a
+// cycle guard (`seen`): a crafted file can set numDifatSectors near 2^32 and
+// point DIFAT sectors back in-bounds, which without the guard grows `ids`
+// without bound and exhausts memory. Distinct in-file sectors is a natural cap.
 function collectFatSectorIds(bytes: Uint8Array, header: CfbHeader): number[] {
   const ids = header.initialDifat.filter((id) => id !== FREESECT && id !== ENDOFCHAIN);
   const perSector = header.sectorSize / 4;
+  const seen = new Set<number>();
   let difatSector = header.firstDifatSector;
-  for (let n = 0; n < header.numDifatSectors && difatSector !== ENDOFCHAIN; n++) {
+  for (
+    let n = 0;
+    n < header.numDifatSectors && difatSector !== ENDOFCHAIN && !seen.has(difatSector);
+    n++
+  ) {
+    seen.add(difatSector);
     const reader = new ByteReader(bytes, sectorOffset(difatSector, header.sectorSize));
     for (let i = 0; i < perSector - 1; i++) {
       const id = reader.u32();

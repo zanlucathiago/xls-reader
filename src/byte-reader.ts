@@ -68,6 +68,11 @@ export class ByteReader {
   }
 
   private require(length: number): void {
+    // Guard a corrupt/negative cursor (e.g. from an out-of-range sector offset)
+    // so it surfaces as XlsError instead of a raw DataView RangeError.
+    if (!Number.isInteger(this.cursor) || this.cursor < 0) {
+      throw new XlsError(`Invalid read offset ${this.cursor}: corrupt structure`);
+    }
     if (this.cursor + length > this.bytes.length) {
       throw new XlsError(
         `Unexpected end of data: needed ${length} byte(s) at offset ${this.cursor}, but only ${this.remaining} remain`,
