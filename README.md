@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://zanlucathiago.github.io/xls-reader/">Website</a> · <strong>English</strong> · <a href="./README.pt-BR.md">Português (BR)</a>
+  <a href="https://zanlucathiago.github.io/xls-reader/demo.html"><strong>Live demo</strong></a> · <a href="https://zanlucathiago.github.io/xls-reader/">Website</a> · <strong>English</strong> · <a href="./README.pt-BR.md">Português (BR)</a>
 </p>
 
 Runs in Node and the browser — it only needs `Uint8Array` / `DataView`. It ships

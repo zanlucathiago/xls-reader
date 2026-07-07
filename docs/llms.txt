@@ -49,6 +49,7 @@ for (const sheet of workbook.sheets) {
 
 ## Links
 
+- Live browser demo (drop an .xls, parsed client-side): https://zanlucathiago.github.io/xls-reader/demo.html
 - npm: https://www.npmjs.com/package/xls-reader
 - Source: https://github.com/zanlucathiago/xls-reader
 - README (full docs): https://github.com/zanlucathiago/xls-reader#readme
