@@ -1,12 +1,35 @@
 # Test fixtures
 
-`sample.xls` is a **synthetic** BIFF8 workbook generated with Python's `xlwt`,
-containing only made-up values. It exercises the reader end-to-end: shared
-strings, integer/float (RK) numbers, a negative number, a boolean, a
-date-formatted cell, and a second worksheet.
+All `.xls` files here are **synthetic** BIFF8 workbooks with made-up values,
+committed on purpose so the tests run against real Excel-97-2003 files with no
+external tooling. Most are produced by `generate.py`; `sample.xls` and the
+hostile `corrupt-huge-column.xls` predate it and are described below.
 
-It is committed on purpose so the integration test runs against a real
-Excel-97-2003 file with no external tooling. Regenerate with:
+## Generated corpus (`generate.py`)
+
+Regenerate with a venv that has xlwt:
+
+```sh
+python3 -m venv .venv && .venv/bin/pip install xlwt==1.3.0
+.venv/bin/python test/fixtures/generate.py
+```
+
+Each file targets one reader behavior (see `test/fixture-corpus.test.ts`):
+
+| File | Exercises |
+| --- | --- |
+| `dates-1900.xls` | Dates/times in the default 1900 epoch |
+| `dates-1904.xls` | The 1904 epoch — same wall-clock dates, different stored serial |
+| `continued-string.xls` | A 9000-char shared string split across `CONTINUE` records, plus a repeated string sharing one SST entry |
+| `unicode.xls` | Non-ASCII text via the wide (16-bit) string path |
+| `numbers.xls` | Integers, negatives, decimals, zero, and large magnitudes (RK + NUMBER) |
+| `large-grid.xls` | A dense 200×20 grid |
+
+## `sample.xls`
+
+The original end-to-end fixture: shared strings, integer/float (RK) numbers, a
+negative number, a boolean, a date-formatted cell, and a second worksheet.
+Regenerate with:
 
 ```py
 import xlwt
