@@ -1,5 +1,28 @@
 # xls-reader
 
+## 0.1.3
+
+### Patch Changes
+
+- [#30](https://github.com/zanlucathiago/xls-reader/pull/30) [`333f275`](https://github.com/zanlucathiago/xls-reader/commit/333f275aaad387bb550d7bc29074a6d342026f4f) Thanks [@zanlucathiago](https://github.com/zanlucathiago)! - Harden the parser against malformed and malicious `.xls` input. Fuzzing surfaced
+  inputs that could crash the process with a raw `RangeError` or exhaust memory
+  (OOM) instead of failing with `XlsError`; all now fail cleanly:
+
+  - Validate the CFB sector/mini-sector power-of-two shift (only 512/4096/64 are
+    legal) — an out-of-range shift produced a negative or huge sector size.
+  - Guard the DIFAT chain walk against self-loops that grew the FAT unbounded.
+  - Reject a negative/non-integer read offset in the byte reader.
+  - Enforce the BIFF8 sheet limits (65536 rows × 256 columns) so a corrupt cell
+    column can't size the dense grid into a hundreds-of-megabytes allocation.
+
+  Adds a seeded fuzz suite and deterministic regression vectors. No API change.
+
+- [#28](https://github.com/zanlucathiago/xls-reader/pull/28) [`9e773c3`](https://github.com/zanlucathiago/xls-reader/commit/9e773c37571b605361b03056253249567e212c55) Thanks [@zanlucathiago](https://github.com/zanlucathiago)! - Build with tsdown (rolldown) instead of tsup, which is no longer maintained. No
+  API change and no runtime dependencies — the public `import`/`require` entry
+  points resolve exactly as before via the `exports` map. Internally the ESM
+  output is now `index.mjs` (was `index.js`); the CJS build is unchanged. This also
+  drops the `ignoreDeprecations` TypeScript workaround that tsup required.
+
 ## 0.1.2
 
 ### Patch Changes
