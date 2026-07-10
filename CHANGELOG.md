@@ -1,5 +1,16 @@
 # xls-reader
 
+## 0.2.0
+
+### Minor Changes
+
+- [#33](https://github.com/zanlucathiago/xls-reader/pull/33) [`ada1411`](https://github.com/zanlucathiago/xls-reader/commit/ada1411238690bf8b3afbc970faeaf943e211a2d) Thanks [@zanlucathiago](https://github.com/zanlucathiago)! - Add `sheetToObjects(sheet, options?)`, a helper that turns a parsed sheet's dense
+  rows into an array of objects keyed by a header row — the shape most callers want
+  when they read an `.xls` "into JSON". Blank-header columns are skipped, a short
+  data row is padded with `null`, and `headerRow` selects which row supplies the
+  keys (the first by default). Additive and zero-dependency; existing APIs are
+  unchanged.
+
 ## 0.1.3
 
 ### Patch Changes
