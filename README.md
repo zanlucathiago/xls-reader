@@ -91,19 +91,19 @@ input.addEventListener("change", async () => {
 
 ## Convert an .xls to JSON
 
-Use the first row as the keys to turn a sheet into an array of JSON objects:
+`sheetToObjects` uses the first row as the keys and returns one object per data
+row:
 
 ```ts
-import { readFirstSheet } from "xls-reader";
+import { readFirstSheet, sheetToObjects } from "xls-reader";
 
 const sheet = readFirstSheet(bytes);
-const [header = [], ...body] = sheet?.rows ?? [];
-
-const json = body.map((row) =>
-  Object.fromEntries(header.map((key, i) => [String(key), row[i] ?? null])),
-);
+const json = sheet ? sheetToObjects(sheet) : [];
 // [{ Emitente: "BANCO X S/A", Taxa: 1.1, Data: 2024-04-02T00:00:00.000Z }, ...]
 ```
+
+Blank-header columns are skipped and short rows are padded with `null`. Pass
+`{ headerRow }` when the header isn't the first row (e.g. a title row above it).
 
 Handling non-`.xls` input:
 
@@ -131,6 +131,11 @@ Parses a whole workbook. Throws `XlsError` if the bytes aren't a BIFF `.xls`.
 ### `readFirstSheet(data): Sheet | undefined`
 
 The first worksheet, for the single-sheet case.
+
+### `sheetToObjects(sheet: Sheet, options?: { headerRow?: number }): RowObject[]`
+
+Turns a sheet's rows into objects keyed by a header row (the first by default).
+Blank-header columns are skipped and short rows are padded with `null`.
 
 ### `excelSerialToDate(serial: number, date1904: boolean): Date`
 
@@ -219,8 +224,8 @@ container. `xls-reader` handles the older binary BIFF8 `.xls` only. Use
 
 ### How do I convert an `.xls` to JSON?
 
-See [Convert an .xls to JSON](#convert-an-xls-to-json) above — map each data row
-onto the header row with `Object.fromEntries`.
+See [Convert an .xls to JSON](#convert-an-xls-to-json) above — call
+`sheetToObjects(sheet)` to key each data row by the header row.
 
 ### Does it work in the browser?
 

@@ -93,20 +93,20 @@ input.addEventListener("change", async () => {
 
 ## Converter um .xls para JSON
 
-Use a primeira linha como chaves para transformar uma planilha em um array de
-objetos JSON:
+O `sheetToObjects` usa a primeira linha como chaves e retorna um objeto por
+linha de dados:
 
 ```ts
-import { readFirstSheet } from "xls-reader";
+import { readFirstSheet, sheetToObjects } from "xls-reader";
 
 const sheet = readFirstSheet(bytes);
-const [header = [], ...body] = sheet?.rows ?? [];
-
-const json = body.map((row) =>
-  Object.fromEntries(header.map((key, i) => [String(key), row[i] ?? null])),
-);
+const json = sheet ? sheetToObjects(sheet) : [];
 // [{ Emitente: "BANCO X S/A", Taxa: 1.1, Data: 2024-04-02T00:00:00.000Z }, ...]
 ```
+
+Colunas com cabeçalho vazio são ignoradas e linhas curtas são preenchidas com
+`null`. Passe `{ headerRow }` quando o cabeçalho não for a primeira linha (ex.:
+há uma linha de título acima dele).
 
 Tratando uma entrada que não é `.xls`:
 
@@ -135,6 +135,12 @@ Faz o parsing do workbook inteiro. Lança `XlsError` se os bytes não forem um
 ### `readFirstSheet(data): Sheet | undefined`
 
 A primeira planilha, para o caso de uma única aba.
+
+### `sheetToObjects(sheet: Sheet, options?: { headerRow?: number }): RowObject[]`
+
+Transforma as linhas de uma planilha em objetos com chaves vindas de uma linha
+de cabeçalho (a primeira, por padrão). Colunas com cabeçalho vazio são ignoradas
+e linhas curtas são preenchidas com `null`.
 
 ### `excelSerialToDate(serial: number, date1904: boolean): Date`
 
@@ -229,8 +235,8 @@ Use o [ExcelJS](https://github.com/exceljs/exceljs) para `.xlsx`.
 
 ### Como converto um `.xls` para JSON?
 
-Veja [Converter um .xls para JSON](#converter-um-xls-para-json) acima — mapeie
-cada linha de dados na linha de cabeçalho com `Object.fromEntries`.
+Veja [Converter um .xls para JSON](#converter-um-xls-para-json) acima — chame
+`sheetToObjects(sheet)` para usar a linha de cabeçalho como chaves de cada linha.
 
 ### Funciona no navegador?
 

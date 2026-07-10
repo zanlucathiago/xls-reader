@@ -15,3 +15,7 @@ export interface Sheet {
 export interface Workbook {
   readonly sheets: readonly Sheet[];
 }
+
+// One data row turned into an object keyed by a sheet's header row, produced by
+// `sheetToObjects`. Values are the same decoded `Cell`s as `Sheet.rows`.
+export type RowObject = Record<string, Cell>;
