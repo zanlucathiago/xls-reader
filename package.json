@@ -37,6 +37,9 @@
   },
   "homepage": "https://github.com/zanlucathiago/xls-reader#readme",
   "type": "module",
+  "bin": {
+    "xls-reader": "./dist/cli.mjs"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
