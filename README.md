@@ -146,8 +146,11 @@ The raw serial-number → `Date` (UTC) conversion, if you need it directly.
 ```ts
 type Cell = string | number | boolean | Date | null;
 
+type SheetVisibility = "visible" | "hidden" | "very-hidden";
+
 interface Sheet {
   name: string;
+  visibility: SheetVisibility;
   rows: Cell[][]; // dense, null-padded to the last used column
 }
 
@@ -161,6 +164,9 @@ interface Workbook {
   returned as a `Date` (UTC). Use `excelSerialToDate` if you need the raw
   conversion.
 - **Blank / error** cells are `null`.
+- **Visibility** — each sheet reports whether it's `visible`, `hidden`, or
+  `very-hidden`, so you can skip the hidden lookup/config tabs. Chart, macro, and
+  VBA substreams aren't worksheets and are left out of `workbook.sheets`.
 
 ## Comparison
 
@@ -185,6 +191,8 @@ of a legacy `.xls`.
   `BLANK`, `MULBLANK`, `BOOLERR`, `FORMULA` (+ its `STRING` result).
 - Shared-string table (`SST`) including strings split across `CONTINUE` records.
 - Date detection via `XF` + `FORMAT`, and the 1900 / 1904 date systems.
+- Sheet visibility (`visible` / `hidden` / `very-hidden`); chart, Excel-4 macro,
+  and VBA substreams are recognized and skipped (they aren't worksheets).
 
 ## Limitations
 

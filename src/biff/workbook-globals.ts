@@ -1,16 +1,20 @@
 import { ByteReader } from "../byte-reader";
 import { excelSerialToDate } from "../excel-serial-date";
+import type { SheetVisibility } from "../types";
 import { isDateFormatIndex } from "./number-format";
 import type { BiffRecord } from "./record-stream";
 import { RecordType } from "./record-types";
 import { parseSharedStrings } from "./shared-strings";
 import { readUnicodeString } from "./unicode-string";
 
-// A worksheet as advertised by the globals: its name and the byte offset of its
-// BOF within the Workbook stream.
+// A sheet as advertised by the globals: its name, visibility, whether it is a
+// worksheet (vs a chart/macro/VBA substream), and the byte offset of its BOF
+// within the Workbook stream.
 export interface BoundSheet {
   readonly name: string;
   readonly offset: number;
+  readonly visibility: SheetVisibility;
+  readonly isWorksheet: boolean;
 }
 
 // Everything from the workbook-globals substream that the sheets need to decode:
@@ -69,14 +73,34 @@ function collectSstChunks(records: readonly BiffRecord[], sstIndex: number): Uin
   return chunks;
 }
 
-// BOUNDSHEET8: byte offset of the sheet's BOF (u32), grbit (u16, skipped), then a
-// short (1-byte length) unicode name.
-function parseBoundSheet(data: Uint8Array): BoundSheet {
+// BOUNDSHEET8: byte offset of the sheet's BOF (u32), grbit (u16), then a short
+// (1-byte length) unicode name. The grbit low byte carries the hidden state and
+// its high byte the sheet type — see decodeSheetGrbit.
+export function parseBoundSheet(data: Uint8Array): BoundSheet {
   const reader = new ByteReader(data);
   const offset = reader.u32();
-  reader.u16();
-  return { name: readUnicodeString(reader, true), offset };
+  const grbit = reader.u16();
+  const name = readUnicodeString(reader, true);
+  return { name, offset, ...decodeSheetGrbit(grbit) };
 }
+
+// BOUNDSHEET8 grbit ([MS-XLS] 2.4.28): the low byte's low 2 bits are hsState
+// (0 visible, 1 hidden, 2 very-hidden) and the high byte is dt, the sheet type
+// (0 worksheet/dialog, 1 Excel-4 macro, 2 chart, 6 VBA module). Only dt 0 holds
+// cells; the rest are separate substreams we don't return as sheets.
+function decodeSheetGrbit(grbit: number): {
+  visibility: SheetVisibility;
+  isWorksheet: boolean;
+} {
+  const visibility = VISIBILITY_BY_STATE[grbit & 0x03] ?? "visible";
+  return { visibility, isWorksheet: ((grbit >> 8) & 0xff) === 0x00 };
+}
+
+const VISIBILITY_BY_STATE: Record<number, SheetVisibility> = {
+  0: "visible",
+  1: "hidden",
+  2: "very-hidden",
+};
 
 // Builds the number/date interpreter: a cell's xf index selects a format index,
 // and a date format means the raw serial becomes a Date.

@@ -4,7 +4,7 @@ import { XlsError } from "../src/errors";
 import type { Cell, Sheet } from "../src/types";
 
 function sheet(rows: Cell[][]): Sheet {
-  return { name: "Sheet1", rows };
+  return { name: "Sheet1", visibility: "visible", rows };
 }
 
 describe("sheetToObjects", () => {
