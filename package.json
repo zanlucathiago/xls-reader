@@ -1,6 +1,6 @@
 {
   "name": "xls-reader",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Zero-dependency .xls (BIFF8 / Excel 97-2003) reader for Node and the browser — a lightweight SheetJS alternative that returns each worksheet as typed cells.",
   "keywords": [
     "xls",
