@@ -152,8 +152,11 @@ diretamente.
 ```ts
 type Cell = string | number | boolean | Date | null;
 
+type SheetVisibility = "visible" | "hidden" | "very-hidden";
+
 interface Sheet {
   name: string;
+  visibility: SheetVisibility;
   rows: Cell[][]; // densa, preenchida com null até a última coluna usada
 }
 
@@ -168,6 +171,9 @@ interface Workbook {
   customizado) volta como `Date` (UTC). Use `excelSerialToDate` se precisar da
   conversão bruta.
 - Células **em branco / de erro** viram `null`.
+- **Visibilidade** — cada planilha informa se é `visible`, `hidden` ou
+  `very-hidden`, então dá para pular as abas ocultas de lookup/config. Substreams
+  de gráfico, macro e VBA não são planilhas e ficam de fora de `workbook.sheets`.
 
 ## Comparação
 
@@ -193,6 +199,8 @@ valores de um `.xls` legado.
 - Tabela de strings compartilhadas (`SST`), incluindo strings divididas entre
   registros `CONTINUE`.
 - Detecção de datas via `XF` + `FORMAT`, e os sistemas de data 1900 / 1904.
+- Visibilidade da planilha (`visible` / `hidden` / `very-hidden`); substreams de
+  gráfico, macro do Excel 4 e VBA são reconhecidos e ignorados (não são planilhas).
 
 ## Limitações
 

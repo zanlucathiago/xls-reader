@@ -45,7 +45,7 @@ export function decodeSheet(
 ): Sheet {
   const ctx: CellContext = { sharedStrings: globals.sharedStrings, numeric: globals.numeric };
   const cells = collectCells(records, offsetToIndex.get(boundSheet.offset), ctx);
-  return { name: boundSheet.name, rows: toGrid(cells) };
+  return { name: boundSheet.name, visibility: boundSheet.visibility, rows: toGrid(cells) };
 }
 
 function collectCells(
