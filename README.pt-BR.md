@@ -33,6 +33,7 @@ npm install xls-reader
 - [Por que isso existe](#por-que-isso-existe)
 - [Uso](#uso)
 - [Converter um .xls para JSON](#converter-um-xls-para-json)
+- [Linha de comando](#linha-de-comando)
 - [API](#api)
 - [Comparação](#comparação)
 - [Suportado](#suportado)
@@ -124,6 +125,27 @@ try {
   }
 }
 ```
+
+## Linha de comando
+
+Sem escrever código, para uma olhada rápida ou um pipeline no shell — o pacote
+inclui um bin `xls-reader` que imprime as células de um workbook como JSON no
+stdout:
+
+```bash
+npx xls-reader relatorio.xls              # todas as planilhas, formatado
+npx xls-reader relatorio.xls --objects    # linhas com chaves do cabeçalho
+npx xls-reader relatorio.xls --sheet 0 --compact > planilha0.json
+```
+
+| Flag                | Efeito                                                  |
+| ------------------- | ------------------------------------------------------- |
+| `--objects`         | Cada linha como objeto com chaves da linha de cabeçalho |
+| `--sheet <nome\|n>` | Só a planilha com este nome ou índice (base 0)          |
+| `--visible-only`    | Ignora planilhas `hidden` e `very-hidden`               |
+| `--compact`         | JSON em uma linha (o padrão é formatado)                |
+
+O JSON vai para o stdout; erros vão para o stderr com código de saída diferente de zero.
 
 ## API
 
