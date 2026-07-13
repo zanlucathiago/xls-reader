@@ -40,7 +40,25 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
       - run: pnpm build
+      # A push to main with no pending changeset AND the current version already
+      # on npm is a routine merge (Dependabot, docs, chore) — nothing to release.
+      # Without this guard, changesets/action still runs `publish`, which tries to
+      # re-publish the current version; changesets 2.31.0 then crashes parsing
+      # npm's "already published" response instead of no-opping. See failed run
+      # #27 (2026-07-13), triggered by the Dependabot merge in #39.
+      - name: Anything to release?
+        id: release_needed
+        run: |
+          pending=$(find .changeset -maxdepth 1 -name '*.md' ! -name 'README.md' | wc -l | tr -d ' ')
+          local_version=$(node -p "require('./package.json').version")
+          published_version=$(npm view xls-reader version 2>/dev/null || echo none)
+          if [ "$pending" != "0" ] || [ "$local_version" != "$published_version" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Create release PR or publish to npm
+        if: steps.release_needed.outputs.run == 'true'
         uses: changesets/action@v1
         with:
           version: pnpm run version-packages
