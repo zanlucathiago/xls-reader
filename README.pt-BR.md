@@ -172,7 +172,12 @@ diretamente.
 ### Tipos
 
 ```ts
-type Cell = string | number | boolean | Date | null;
+type Cell = string | number | boolean | Date | CellError | null;
+
+// Um valor de erro do Excel, ex.: new CellError("#DIV/0!"). `.code` é o texto do erro.
+class CellError {
+  readonly code: "#NULL!" | "#DIV/0!" | "#VALUE!" | "#REF!" | "#NAME?" | "#NUM!" | "#N/A";
+}
 
 type SheetVisibility = "visible" | "hidden" | "very-hidden";
 
@@ -192,7 +197,10 @@ interface Workbook {
 - **Datas** — um número cujo formato de célula é de data/hora (embutido ou
   customizado) volta como `Date` (UTC). Use `excelSerialToDate` se precisar da
   conversão bruta.
-- Células **em branco / de erro** viram `null`.
+- Células **de erro** voltam como `CellError` (ex.: `#DIV/0!`, `#N/A`) — teste
+  `cell instanceof CellError` e leia `cell.code`. Em JSON viram
+  `{ "code": "#DIV/0!" }`.
+- Células **em branco** viram `null`.
 - **Visibilidade** — cada planilha informa se é `visible`, `hidden` ou
   `very-hidden`, então dá para pular as abas ocultas de lookup/config. Substreams
   de gráfico, macro e VBA não são planilhas e ficam de fora de `workbook.sheets`.

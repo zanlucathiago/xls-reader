@@ -165,7 +165,12 @@ The raw serial-number → `Date` (UTC) conversion, if you need it directly.
 ### Types
 
 ```ts
-type Cell = string | number | boolean | Date | null;
+type Cell = string | number | boolean | Date | CellError | null;
+
+// An Excel error value, e.g. new CellError("#DIV/0!"). `.code` is the error text.
+class CellError {
+  readonly code: "#NULL!" | "#DIV/0!" | "#VALUE!" | "#REF!" | "#NAME?" | "#NUM!" | "#N/A";
+}
 
 type SheetVisibility = "visible" | "hidden" | "very-hidden";
 
@@ -184,7 +189,10 @@ interface Workbook {
 - **Dates** — a number whose cell format is a date/time (built-in or custom) is
   returned as a `Date` (UTC). Use `excelSerialToDate` if you need the raw
   conversion.
-- **Blank / error** cells are `null`.
+- **Error** cells come back as a `CellError` (e.g. `#DIV/0!`, `#N/A`) — check
+  `cell instanceof CellError` and read `cell.code`. In JSON they serialize to
+  `{ "code": "#DIV/0!" }`.
+- **Blank** cells are `null`.
 - **Visibility** — each sheet reports whether it's `visible`, `hidden`, or
   `very-hidden`, so you can skip the hidden lookup/config tabs. Chart, macro, and
   VBA substreams aren't worksheets and are left out of `workbook.sheets`.
