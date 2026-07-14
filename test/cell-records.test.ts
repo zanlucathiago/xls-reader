@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { decodeFormula, decodeMulRk, type CellContext } from "../src/biff/cell-records";
+import {
+  decodeBoolErr,
+  decodeFormula,
+  decodeMulRk,
+  type CellContext,
+} from "../src/biff/cell-records";
+import { CellError } from "../src/types";
 
 // A context that returns numbers verbatim (no date coercion) so tests assert the
 // decoded value, not the format layer.
@@ -32,6 +38,42 @@ describe("decodeFormula", () => {
     // result[0]=1 (boolean), result[2]=1 (true), 0xFFFF sentinel.
     const result = decodeFormula(formula([1, 0, 1, 0, 0, 0, 0xff, 0xff]), ctx);
     expect(result).toEqual({ kind: "value", cell: { row: 0, col: 0, value: true } });
+  });
+
+  it("decodes a cached error result as a CellError", () => {
+    // result[0]=2 (error), result[2]=0x17 (#REF!), 0xFFFF sentinel.
+    const result = decodeFormula(formula([2, 0, 0x17, 0, 0, 0, 0xff, 0xff]), ctx);
+    expect(result).toEqual({
+      kind: "value",
+      cell: { row: 0, col: 0, value: new CellError("#REF!") },
+    });
+  });
+
+  it("decodes a cached blank result as null", () => {
+    // result[0]=3 (blank), 0xFFFF sentinel.
+    const result = decodeFormula(formula([3, 0, 0, 0, 0, 0, 0xff, 0xff]), ctx);
+    expect(result).toEqual({ kind: "value", cell: { row: 0, col: 0, value: null } });
+  });
+});
+
+// BOOLERR body: row, col, xf (each u16), then a value byte and an isError flag.
+function boolErr(value: number, isError: number): Uint8Array {
+  return Uint8Array.from([0, 0, 0, 0, 0, 0, value, isError]);
+}
+
+describe("decodeBoolErr", () => {
+  it("decodes booleans", () => {
+    expect(decodeBoolErr(boolErr(1, 0)).value).toBe(true);
+    expect(decodeBoolErr(boolErr(0, 0)).value).toBe(false);
+  });
+
+  it("decodes an error byte into a CellError", () => {
+    expect(decodeBoolErr(boolErr(0x07, 1)).value).toEqual(new CellError("#DIV/0!"));
+    expect(decodeBoolErr(boolErr(0x2a, 1)).value).toEqual(new CellError("#N/A"));
+  });
+
+  it("falls back to null for an unrecognized error byte", () => {
+    expect(decodeBoolErr(boolErr(0x99, 1)).value).toBeNull();
   });
 });
 

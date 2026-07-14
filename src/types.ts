@@ -1,7 +1,25 @@
+// The seven Excel error values, in their worksheet spelling ([MS-XLS] BErr).
+export type ExcelErrorCode =
+  "#NULL!" | "#DIV/0!" | "#VALUE!" | "#REF!" | "#NAME?" | "#NUM!" | "#N/A";
+
+// An Excel error value sitting in a cell (e.g. `#DIV/0!`). It's a distinct type
+// rather than `null` so an importer can tell an errored cell from a blank one,
+// and rather than a plain string so it can't be confused with a text cell that
+// literally contains "#N/A". Serializes to `{ "code": "#DIV/0!" }` in JSON.
+//
+// @example
+//   if (cell instanceof CellError) console.warn(`errored: ${cell.code}`);
+export class CellError {
+  constructor(readonly code: ExcelErrorCode) {}
+  toString(): string {
+    return this.code;
+  }
+}
+
 // A single cell value, already decoded from BIFF8 to a plain JS value. Numbers
-// formatted as dates in the source come back as `Date`; empty/blank cells and
-// error cells come back as `null`.
-export type Cell = string | number | boolean | Date | null;
+// formatted as dates in the source come back as `Date`; error cells come back as
+// a `CellError`; empty/blank cells come back as `null`.
+export type Cell = string | number | boolean | Date | CellError | null;
 
 // How a sheet is surfaced in Excel: normally visible, hidden (re-shown from the
 // sheet-tab menu), or very-hidden (only togglable from the VBA editor — often a

@@ -1,5 +1,6 @@
 import { ByteReader } from "../byte-reader";
 import type { Cell } from "../types";
+import { errorFromByte } from "./error-code";
 import { decodeRk } from "./rk-number";
 import { readUnicodeString } from "./unicode-string";
 
@@ -60,7 +61,7 @@ export function decodeBoolErr(data: Uint8Array): PositionedCell {
   const { row, col } = readHead(reader);
   const raw = reader.u8();
   const isError = reader.u8() !== 0;
-  return { row, col, value: isError ? null : raw !== 0 };
+  return { row, col, value: isError ? errorFromByte(raw) : raw !== 0 };
 }
 
 // MULRK packs several RK cells sharing a row: [row][colFirst] then one (xf, rk)
@@ -106,7 +107,10 @@ function nonNumericResult(row: number, col: number, result: Uint8Array): Formula
   const kind = result[0];
   if (kind === 0) return { kind: "pending-string", row, col };
   if (kind === 1) return { kind: "value", cell: { row, col, value: result[2] !== 0 } };
-  return { kind: "value", cell: { row, col, value: null } }; // error (2) or blank (3)
+  // Byte 2 carries the value: for kind 2 (error) it's the error code, same slot
+  // the boolean above reads; kind 3 is a blank result.
+  const value = kind === 2 ? errorFromByte(result[2] ?? 0xff) : null;
+  return { kind: "value", cell: { row, col, value } };
 }
 
 // Every cell record starts with row (u16), column (u16), and an xf index (u16).
