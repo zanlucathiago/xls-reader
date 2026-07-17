@@ -158,6 +158,21 @@ The first worksheet, for the single-sheet case.
 Turns a sheet's rows into objects keyed by a header row (the first by default).
 Blank-header columns are skipped and short rows are padded with `null`.
 
+### `sheetToCsv(sheet: Sheet, options?: { delimiter?: string; eol?: string }): string`
+
+Serializes a sheet to a CSV string with RFC-4180 quoting. A `Date` becomes a UTC
+ISO-8601 string, a `CellError` becomes its code (e.g. `#DIV/0!`), and a blank
+cell becomes an empty field. `delimiter` defaults to `,` and `eol` to `\n` (pass
+`\r\n` for Excel-style output).
+
+```ts
+import { readFirstSheet, sheetToCsv } from "xls-reader";
+
+const sheet = readFirstSheet(bytes);
+const csv = sheet ? sheetToCsv(sheet) : "";
+// "Name,Age\nAda,36\nAlan,41"
+```
+
 ### `excelSerialToDate(serial: number, date1904: boolean): Date`
 
 The raw serial-number → `Date` (UTC) conversion, if you need it directly.
