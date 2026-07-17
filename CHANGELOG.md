@@ -1,5 +1,15 @@
 # xls-reader
 
+## 0.6.0
+
+### Minor Changes
+
+- [#44](https://github.com/zanlucathiago/xls-reader/pull/44) [`3dc76b6`](https://github.com/zanlucathiago/xls-reader/commit/3dc76b6b4a4c3eb6e397ecee801359939feaf051) Thanks [@zanlucathiago](https://github.com/zanlucathiago)! - Add `sheetToCsv(sheet, options?)`, a CSV counterpart to `sheetToObjects`. It
+  serializes a sheet's grid to a CSV string with RFC-4180 quoting: a `Date` becomes
+  a UTC ISO-8601 string, a `CellError` becomes its code (e.g. `#DIV/0!`), and a
+  blank cell becomes an empty field. `delimiter` defaults to `,` and `eol` to `\n`
+  (pass `\r\n` for Excel-style output). Exports the new `SheetToCsvOptions` type.
+
 ## 0.5.0
 
 ### Minor Changes
