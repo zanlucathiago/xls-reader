@@ -164,6 +164,21 @@ Transforma as linhas de uma planilha em objetos com chaves vindas de uma linha
 de cabeçalho (a primeira, por padrão). Colunas com cabeçalho vazio são ignoradas
 e linhas curtas são preenchidas com `null`.
 
+### `sheetToCsv(sheet: Sheet, options?: { delimiter?: string; eol?: string }): string`
+
+Serializa uma planilha para uma string CSV com aspas no padrão RFC-4180. Um
+`Date` vira uma string ISO-8601 em UTC, um `CellError` vira o seu código (ex.:
+`#DIV/0!`) e uma célula em branco vira um campo vazio. `delimiter` é `,` por
+padrão e `eol` é `\n` (use `\r\n` para o formato do Excel).
+
+```ts
+import { readFirstSheet, sheetToCsv } from "xls-reader";
+
+const sheet = readFirstSheet(bytes);
+const csv = sheet ? sheetToCsv(sheet) : "";
+// "Name,Age\nAda,36\nAlan,41"
+```
+
 ### `excelSerialToDate(serial: number, date1904: boolean): Date`
 
 A conversão bruta de número serial → `Date` (UTC), caso você precise dela
