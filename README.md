@@ -126,22 +126,26 @@ try {
 ## Command line
 
 No code needed for a quick look or a shell pipeline — the package ships an
-`xls-reader` bin that prints a workbook's cells as JSON to stdout:
+`xls-reader` bin that prints a workbook's cells as JSON (or CSV) to stdout:
 
 ```bash
-npx xls-reader report.xls              # every sheet, pretty-printed
-npx xls-reader report.xls --objects    # rows keyed by the header row
+npx xls-reader report.xls                    # every sheet, pretty-printed
+npx xls-reader report.xls --objects          # rows keyed by the header row
 npx xls-reader report.xls --sheet 0 --compact > sheet0.json
+npx xls-reader report.xls --csv --sheet 0 > sheet0.csv
 ```
 
-| Flag                | Effect                                         |
-| ------------------- | ---------------------------------------------- |
-| `--objects`         | Each row as an object keyed by the header row  |
-| `--sheet <name\|n>` | Only the sheet with this name or 0-based index |
-| `--visible-only`    | Skip hidden and very-hidden sheets             |
-| `--compact`         | Single-line JSON (default is pretty-printed)   |
+| Flag                | Effect                                           |
+| ------------------- | ------------------------------------------------ |
+| `--objects`         | Each row as an object keyed by the header row    |
+| `--csv`             | The selected sheet as CSV (needs a single sheet) |
+| `--sheet <name\|n>` | Only the sheet with this name or 0-based index   |
+| `--visible-only`    | Skip hidden and very-hidden sheets               |
+| `--compact`         | Single-line JSON (default is pretty-printed)     |
 
-JSON goes to stdout; errors go to stderr with a non-zero exit code.
+Output goes to stdout; errors go to stderr with a non-zero exit code. `--csv`
+serializes a single sheet, so pair it with `--sheet` when the workbook has more
+than one — otherwise it exits with an error listing the available sheets.
 
 ## API
 

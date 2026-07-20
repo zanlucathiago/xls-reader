@@ -42,6 +42,7 @@ function options(overrides: Partial<CliOptions> = {}): CliOptions {
     asObjects: false,
     visibleOnly: false,
     compact: false,
+    format: "json",
     ...overrides,
   };
 }
@@ -56,6 +57,7 @@ describe("parseArgs", () => {
         asObjects: false,
         visibleOnly: false,
         compact: false,
+        format: "json",
       },
     });
   });
@@ -65,10 +67,28 @@ describe("parseArgs", () => {
       parseArgs(["a.xls", "--objects", "--visible-only", "--compact", "--sheet", "2"]),
     ).toEqual({
       kind: "run",
-      options: { file: "a.xls", sheet: "2", asObjects: true, visibleOnly: true, compact: true },
+      options: {
+        file: "a.xls",
+        sheet: "2",
+        asObjects: true,
+        visibleOnly: true,
+        compact: true,
+        format: "json",
+      },
     });
     const eq = parseArgs(["--sheet=Report", "a.xls"]);
     expect(eq.kind === "run" && eq.options.sheet).toBe("Report");
+  });
+
+  it("--csv selects the csv output format", () => {
+    const parsed = parseArgs(["a.xls", "--csv"]);
+    expect(parsed.kind === "run" && parsed.options.format).toBe("csv");
+  });
+
+  it("rejects --csv together with --objects", () => {
+    const conflict = parseArgs(["a.xls", "--csv", "--objects"]);
+    expect(conflict.kind).toBe("error");
+    expect(conflict.kind === "error" && conflict.message).toContain("--csv cannot be combined");
   });
 
   it("returns help and version outcomes", () => {
@@ -138,6 +158,16 @@ describe("renderWorkbook", () => {
   it("throws XlsError when --sheet matches nothing", () => {
     expect(() => renderWorkbook(workbook, options({ sheet: "ghost" }))).toThrow(XlsError);
   });
+
+  it("--csv renders the single selected sheet as CSV", () => {
+    const csv = renderWorkbook(workbook, options({ format: "csv", sheet: "Data" }));
+    expect(csv).toBe("Name,Age\nAda,36");
+  });
+
+  it("--csv throws XlsError when the selection isn't exactly one sheet", () => {
+    expect(() => renderWorkbook(workbook, options({ format: "csv" }))).toThrow(XlsError);
+    expect(() => renderWorkbook(workbook, options({ format: "csv" }))).toThrow(/exactly one sheet/);
+  });
 });
 
 describe("runCli", () => {
@@ -145,6 +175,14 @@ describe("runCli", () => {
     const io = new FakeCliIO(NUMBERS_XLS);
     expect(await runCli(["numbers.xls", "--compact"], io)).toBe(0);
     expect((JSON.parse(io.out) as OutSheet[])[0]?.name).toBe("Numbers");
+  });
+
+  it("reads a real .xls and prints CSV (exit 0)", async () => {
+    const io = new FakeCliIO(NUMBERS_XLS);
+    expect(await runCli(["numbers.xls", "--csv", "--sheet", "0"], io)).toBe(0);
+    expect(io.out).not.toContain("{");
+    expect(io.out.endsWith("\n")).toBe(true);
+    expect(io.out.split("\n").length).toBeGreaterThan(1);
   });
 
   it("prints help and version to stdout (exit 0)", async () => {

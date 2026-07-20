@@ -1,3 +1,7 @@
+// How the selected sheets are serialized to stdout: a JSON document (default) or,
+// with `--csv`, one sheet's grid as CSV.
+export type OutputFormat = "json" | "csv";
+
 // The read options carried by a parsed CLI invocation. `sheet` is a name or a
 // 0-based index; undefined means "every sheet".
 export interface CliOptions {
@@ -6,6 +10,7 @@ export interface CliOptions {
   readonly asObjects: boolean;
   readonly visibleOnly: boolean;
   readonly compact: boolean;
+  readonly format: OutputFormat;
 }
 
 // The outcome of parsing argv: a read to run, a terminal help/version request, or
@@ -22,6 +27,7 @@ interface Accumulator {
   asObjects: boolean;
   visibleOnly: boolean;
   compact: boolean;
+  format: OutputFormat;
 }
 
 // Parses the CLI arguments (argv without node/script). Help and version win over
@@ -41,6 +47,10 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
   }
   if (acc.file === undefined)
     return { kind: "error", message: "missing .xls file argument (try --help)" };
+  // CSV renders a single grid, so the row-reshaping of --objects has no meaning
+  // there; reject the pair rather than silently ignoring one of them.
+  if (acc.format === "csv" && acc.asObjects)
+    return { kind: "error", message: "--csv cannot be combined with --objects (try --help)" };
   return { kind: "run", options: { ...acc, file: acc.file } };
 }
 
@@ -51,6 +61,7 @@ function createAccumulator(): Accumulator {
     asObjects: false,
     visibleOnly: false,
     compact: false,
+    format: "json",
   };
 }
 
@@ -66,6 +77,7 @@ function applyToken(token: string, acc: Accumulator): string | null {
     return null;
   }
   if (token === "--objects") acc.asObjects = true;
+  else if (token === "--csv") acc.format = "csv";
   else if (token === "--visible-only") acc.visibleOnly = true;
   else if (token === "--compact") acc.compact = true;
   else if (token.startsWith("-")) return `unknown option "${token}" (try --help)`;
