@@ -80,15 +80,15 @@
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.7.0",
-    "@changesets/cli": "^2.31.0",
+    "@changesets/changelog-github": "^1.0.0",
+    "@changesets/cli": "^3.0.0",
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.0.0",
     "@vitest/coverage-v8": "^4.1.9",
     "eslint": "^10.6.0",
     "prettier": "^3.4.2",
-    "tsdown": "0.22.7",
-    "typescript": "^6.0.3",
+    "tsdown": "0.22.14",
+    "typescript": "^7.0.2",
     "typescript-eslint": "^8.18.1",
     "vite": "^8.0.16",
     "vitest": "^4.1.9"
