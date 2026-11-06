@@ -64,6 +64,9 @@ export class ByteReader {
   }
 
   skip(length: number): void {
+    // Bounds-check like slice/u*: corrupt SST rich-text / CONTINUE lengths must
+    // fail as XlsError instead of advancing the cursor past the buffer.
+    this.require(length);
     this.cursor += length;
   }
 
@@ -72,6 +75,11 @@ export class ByteReader {
     // so it surfaces as XlsError instead of a raw DataView RangeError.
     if (!Number.isInteger(this.cursor) || this.cursor < 0) {
       throw new XlsError(`Invalid read offset ${this.cursor}: corrupt structure`);
+    }
+    // Negative or non-integer lengths would otherwise move the cursor backward
+    // or produce NaN offsets and escape as raw RangeError/TypeError.
+    if (!Number.isInteger(length) || length < 0) {
+      throw new XlsError(`Invalid read length ${length}: corrupt structure`);
     }
     if (this.cursor + length > this.bytes.length) {
       throw new XlsError(
